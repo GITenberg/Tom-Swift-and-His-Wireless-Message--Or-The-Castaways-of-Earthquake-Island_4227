@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: t4hflfySagbTAbEAwewDmIJse7ZlUTSYBMWPOprtQ5RGp8gII6b6DwdeeJKCU7tolVYDBnQYJ72S9yM9O7OZR7V2+4UkVvetBI03H+u18edoV6WWepQ/Cbmga1WLqglQw050HwfoMuRFQGn/4IwV1+5pa4VMwAaXIQsW7rMamsdMV/MCcEamwWBi5X7KRwIe6LAiS8SZyF+lTv7Rd2R8Az7RO1QHISwcYVy0E092x/BpmGNtUaf3ELwqvpX30zY701pJSN0sQdMbQz/yUGMBQUlMSEclyDLo/E+aevBFmQdf1PnB27cK6vjQwYJpj3UaqWZn4gH4vtUH79W6fMcqXgs94QlC8fMI9/Xdgv9nVlutcuq4FfY/zonfvmnCNziS5fPc1OTdw5NXNsBAN6QO0YemEdzhI9FQSCil3iB2gL6gbsk0mXId91GbFGSghDDUatgljd3JAqy+hC0ISWnjS16NuVsU7gTK/1YRm9hrj2KkquA/I9y8/MMUigwhIFx7k2qMaITGz+cziN8fpSvntkEJ72rkWcyMtF8mbbqta4YxkHGz5y1cb7UI10JNIks6JZw8N74nMSq0Y6ZCLIk7LWXmFZj2VprCmni94UFKRS2s91PE6TMn2RAwZK31e/rLKf9P3bV1HD3GT9DVs1S10yLFZJcA8THo96bUhn3/aOw=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Tom-Swift-and-His-Wireless-Message--Or-The-Castaways-of-Earthquake-Island_4227
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
